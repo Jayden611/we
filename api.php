@@ -117,10 +117,10 @@ if($action == 'register'){
 				$sql = "SELECT userId FROM userdb WHERE email = '$email'";
 				$query = $conn->query($sql);
 				$row = $query->fetch_array();
-				$userIdPk = $row[0];
-				
+				$userIdPk = $row["userId"];
+								
 				$sql = "INSERT INTO `useracc` (`userIdPk`, `rpIdPk`) 
-				VALUES ('$userIdPk', 1)";
+				VALUES ( $userIdPk , 1)";
 				$query = $conn->query($sql);
 				if($query){
 					$out['message'] = "User Added Successfully";

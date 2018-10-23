@@ -1,6 +1,6 @@
 <?php
 
-$conn = new mysqli("localhost", "root", "root", "weinc_user");
+$conn = new mysqli("localhost", "root", "", "weinc_user");
  
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);

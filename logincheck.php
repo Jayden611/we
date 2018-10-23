@@ -1,24 +1,29 @@
 <?php
-session_start();
-
 $conn = new mysqli("localhost", "root", "", "weinc_user");
  
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$out = array('error' => false);
-
-$email = $conn->real_escape_string($_POST['email']);
-$password = $conn->real_escape_string($_POST['password']);
+$json = json_decode(file_get_contents("php://input"), true);
+$email = $json['email'];
+$password = $json['password'];
 
 if($email==''){
-	$out['error'] = true;
-	$out['message'] = "Email is required";
+	$out['meta'] = array('msg' => 'Email is required','code' => 1);
+	$out['data'] = "";
 }
 else if($password==''){
-	$out['error'] = true;
-	$out['message'] = "Password is required";
+	$out['meta'] = array('msg' => 'Password is required','code' => 1);
+	$out['data'] = "";
+}
+else if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+	$out['meta'] = array('msg' => 'Invalid Email Format','code' => 1);
+	$out['data'] = "";
+}
+else if(strlen($password) < 6){
+	$out['meta'] = array('msg' => '6-12bit','code' => 1);
+	$out['data'] = "";
 }
 else{
 	$stmt = $conn->prepare('select * from userdb where email=?');
@@ -31,17 +36,19 @@ else{
 		$row=$query->fetch_array();	
 		
 		if (password_verify($password, $row['password'])){
+			session_start();
 			$_SESSION['user']=$row['userId'];
-			$out['message'] = "Login Successful";
+			$out['meta'] = array('msg' => 'Login Successful','code' => 0);
+	        $out['data'] = "";
 		}
 		else{
-			$out['error'] = true;
-			$out['message'] = "Login Failed.";
+			$out['meta'] = array('msg' => 'Login Failed','code' => 1);
+	        $out['data'] = "";
 		}
 	}
 	else{
-		$out['error'] = true;
-		$out['message'] = "Login Failed. Email or password not correct";
+		$out['meta'] = array('msg' => 'Login Failed. Email or password not correct','code' => 1);
+		$out['data'] = "";
 	}
 }
 
